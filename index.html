@@ -470,6 +470,7 @@
         <div class="category-title">Calculadoras</div>
         <a class="nav-item" id="nav-master" onclick="app.showPage('master-calc', 'nav-master')">⚡ Status</a>
         <a class="nav-item" id="nav-xp" onclick="app.showPage('xp-calc', 'nav-xp')">📈 Nível</a>
+        <a class="nav-item" id="nav-tp-acumulado" onclick="app.showPage('tp-acumulado', 'nav-tp-acumulado')">🌟 TP Acumulado</a>
         
         <div class="category-title">Guias</div>
         <a class="nav-item" id="nav-maestria" onclick="app.showPage('maestria-guide', 'nav-maestria')">📖 Maestria</a>
@@ -628,6 +629,33 @@
             </div>
         </section>
 
+        <section id="tp-acumulado" class="page">
+            <div class="container" style="max-width: 500px; margin: auto;">
+                <h1>Calculadora de TP Acumulado</h1>
+                <p class="subtitle">Descubra quanto TP você terá se juntar até determinado nível.</p>
+                
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>Nível Atual</label>
+                        <input type="number" id="tpNivelAtual" value="1" oninput="app.calcTPAcumulado()">
+                    </div>
+                    <div class="input-group">
+                        <label>Nível Alvo</label>
+                        <input type="number" id="tpNivelAlvo" placeholder="Ex: 100" oninput="app.calcTPAcumulado()">
+                    </div>
+                </div>
+                
+                <div class="result-box result-success" style="margin-top: 10px;">
+                    <label style="color: var(--success); font-weight: 700;">Total de TP Acumulado</label>
+                    <span id="resTPAcumulado">0 TP</span>
+                </div>
+                
+                <div class="guide-step" style="margin-top: 20px; border-left-color: var(--primary);">
+                    <p>Fórmula: <b>12 de TP</b> por cada nível upado do seu nível atual até o alvo.</p>
+                </div>
+            </div>
+        </section>
+
         <section id="maestria-guide" class="page">
             <div class="container" style="max-width: 600px; margin: auto;">
                 <h1>Guia de Maestria</h1>
@@ -712,6 +740,8 @@
             },
 
             showPage: function(pageId, navId) {
+
+            
                 document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
                 const navEl = document.getElementById(navId);
                 if (navEl) navEl.classList.add('active');
@@ -724,10 +754,11 @@
                     this.toggleMenu();
                 }
                 
-if(pageId === 'master-calc' || pageId === 'xp-calc' || pageId === 'sim-historia') {
+if(pageId === 'master-calc' || pageId === 'xp-calc' || pageId === 'sim-historia' || pageId === 'tp-acumulado') {
     this.carregarPerfil();
     if(pageId === 'xp-calc') this.calcXP();
     if(pageId === 'sim-historia') this.calcSimHistoria();
+    if(pageId === 'tp-acumulado') this.calcTPAcumulado();
 }
             },
 
@@ -785,6 +816,9 @@ if(pageId === 'master-calc' || pageId === 'xp-calc' || pageId === 'sim-historia'
                 const data = JSON.parse(localStorage.getItem('EvoPerf') || '{}');
                 const nick = data.n || '';
                 const level = data.lvl || 1;
+
+                const tpNivelAtualInput = document.getElementById('tpNivelAtual');
+                if(tpNivelAtualInput) tpNivelAtualInput.value = level;
                 
                 document.getElementById('pNick').value = nick;
                 document.getElementById('pLevel').value = level;
@@ -908,6 +942,20 @@ if(pageId === 'master-calc' || pageId === 'xp-calc' || pageId === 'sim-historia'
                 
                 const shadowMins = Math.ceil(xpTotal / this.config.xpSombraMinuto);
                 document.getElementById('resShadow').innerText = shadowMins.toLocaleString() + " mins";
+            },
+
+            // NOVA CALCULADORA DE TP ACUMULADO
+            calcTPAcumulado: function() {
+                const atual = parseInt(document.getElementById('tpNivelAtual').value) || 1;
+                const alvo = parseInt(document.getElementById('tpNivelAlvo').value) || 1;
+
+                if (alvo > atual) {
+                    const niveisUpados = alvo - atual;
+                    const tpTotal = niveisUpados * 12; // 12 de TP por nível
+                    document.getElementById('resTPAcumulado').innerText = tpTotal.toLocaleString() + " TP";
+                } else {
+                    document.getElementById('resTPAcumulado').innerText = "0 TP";
+                }
             },
 
             // NOVA FUNÇÃO DO SIMULADOR DE HISTÓRIA
